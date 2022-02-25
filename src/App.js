@@ -4,12 +4,34 @@ import "./App.css";
 
 function App() {
   const [cat, setCat] = useState({});
-  const [catBuffer, setCatBuffer] = useState([])
-  const [catEffect, setCatEffect] = useState(false)
+  const [catBuffer, setCatBuffer] = useState([]);
+  const [catCounter, setCatCounter] = useState(0);
+
+  console.log(catBuffer);
 
   useEffect(() => {
     fetchCat("https://api.thecatapi.com/v1/images/search", "GET");
-  }, [catEffect]);
+    handleCatCounter();
+  }, [catCounter]);
+
+  function handleCatCounter() {
+    if (catCounter < 19) {
+      setCatCounter(catCounter + 1);
+    } else {
+      return;
+    }
+  }
+
+  function bufferACatPicture(cat) {
+    const catPicture = cat[0].url;
+    setCatBuffer((oldCatPictures) => [...oldCatPictures, catPicture]);
+  }
+
+  function isBufferLength() {
+    if (catBuffer.length < 10) {
+      setCatCounter(0);
+    }
+  }
 
   async function fetchCat(url, verb) {
     const response = await fetch(url, {
@@ -19,41 +41,34 @@ function App() {
       },
     });
     const cat = await response.json();
-    catSetter(cat);
+    bufferACatPicture(cat);
   }
 
   function isCat(cat) {
     return cat === undefined || null ? true : false;
   }
 
-  function catSetter(cat) {
-    if (isCat(cat)) {
-      return
-    }
-    setCat(cat[0]);
+  function handleCatClick() {
+    setCat(catBuffer.shift());
+    isBufferLength();
   }
 
-  function handleClick(){
-     setCatEffect(value => !value)
-   
-  }
-  console.log(cat)
-  function Loading(){
+  function DisplayBuffer() {
     return (
-      <div className="Loading">
-        Loading...
-      </div>
-    )
+      <div className="Loading">{`Your catBuffer has ${catBuffer.length} cats`}</div>
+    );
   }
-  
+
   return (
     <div className="App">
       <header className="App-header">
-        <button className="Cat-button" onClick={handleClick}>CAT</button>
+        <button className="Cat-button" onClick={handleCatClick}>
+          CAT
+        </button>
         <div className="Cat-container">
-          <img className="Cat-img" src={cat.url} />
+          <img className="Cat-img" src={cat} />
         </div>
-        <Loading/>
+        <DisplayBuffer />
       </header>
     </div>
   );
