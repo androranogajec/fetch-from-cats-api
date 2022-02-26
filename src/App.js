@@ -6,31 +6,48 @@ function App() {
   const [cat, setCat] = useState({});
   const [catBuffer, setCatBuffer] = useState([]);
   const [catCounter, setCatCounter] = useState(0);
-
-  console.log(catBuffer);
+  console.log(catBuffer, "catBuffer");
 
   useEffect(() => {
-    fetchCat("https://api.thecatapi.com/v1/images/search", "GET");
-    handleCatCounter();
+    initCatPicture()
+  }, []);
+
+  useEffect(() => {
+    bufferCatsPictures();
   }, [catCounter]);
 
-  function handleCatCounter() {
-    if (catCounter < 19) {
-      setCatCounter(catCounter + 1);
-    } else {
-      return;
-    }
-  }
 
-  function bufferACatPicture(cat) {
-    const catPicture = cat[0].url;
-    setCatBuffer((oldCatPictures) => [...oldCatPictures, catPicture]);
-  }
 
   function isBufferLength() {
-    if (catBuffer.length < 10) {
+    if (catBuffer.length < 2) {
       setCatCounter(0);
     }
+  }
+  async function initCatPicture(){
+    const cat = await fetchCat(
+      "https://api.thecatapi.com/v1/images/search",
+      "GET"
+    );
+    const catPicture = cat[0].url;
+    setCat(catPicture)
+  }
+  async function bufferCatsPictures() {
+    const cat = await fetchCat(
+      "https://api.thecatapi.com/v1/images/search",
+      "GET"
+    );
+    const catPicture = cat[0].url;
+    setCatBuffer((oldCatPictures) => [...oldCatPictures, catPicture]);
+
+    //fetch cats till get to 20
+    function bufferCatsCounter() {
+      if (catCounter < 9) {
+        setCatCounter(catCounter + 1);
+      } else {
+        return;
+      }
+    }
+    bufferCatsCounter()
   }
 
   async function fetchCat(url, verb) {
@@ -41,7 +58,7 @@ function App() {
       },
     });
     const cat = await response.json();
-    bufferACatPicture(cat);
+    return cat;
   }
 
   function isCat(cat) {
@@ -49,8 +66,14 @@ function App() {
   }
 
   function handleCatClick() {
+   
+   if(catBuffer.length < 2){
+     return 
+   }else{
     setCat(catBuffer.shift());
-    isBufferLength();
+    isBufferLength()
+   }
+    
   }
 
   function DisplayBuffer() {
@@ -66,7 +89,7 @@ function App() {
           CAT
         </button>
         <div className="Cat-container">
-          <img className="Cat-img" src={cat} />
+          <img className="Cat-img" src={cat} alt="cat"/>
         </div>
         <DisplayBuffer />
       </header>
