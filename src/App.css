@@ -12,7 +12,10 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
-
+.Cat-Loading {
+  max-height: 576px;
+  min-height: 576px;
+}
 .App-header {
  
   min-height: 100vh;
@@ -22,6 +25,7 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  
 }
 
 .App-link {
@@ -29,16 +33,18 @@
 }
 
 .Cat-button {
+  
   width: 100px;
   height: 50px;
+
   cursor: pointer;
 }
 .Cat-img {
   display: block;
   max-width: 704px;
-  min-width: 704px;
   max-height: 576px;
   min-height: 576px;
+ 
  
 }
 

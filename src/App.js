@@ -1,36 +1,38 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { useEffect, useState } from "react";
+import loading from "./1.gif";
 import "./App.css";
 
 function App() {
-  const [cat, setCat] = useState({});
+  const [cat, setCat] = useState(null);
   const [catBuffer, setCatBuffer] = useState([]);
   const [catCounter, setCatCounter] = useState(0);
   console.log(catBuffer, "catBuffer");
 
   useEffect(() => {
-    initCatPicture()
+    initCatPicture();
   }, []);
 
   useEffect(() => {
     bufferCatsPictures();
   }, [catCounter]);
 
-
-
   function isBufferLength() {
-    if (catBuffer.length < 2) {
-      setCatCounter(0);
+    if (catBuffer.length < 1) {
+      return true
+    }else{
+      return false
     }
   }
-  async function initCatPicture(){
+  async function initCatPicture() {
     const cat = await fetchCat(
       "https://api.thecatapi.com/v1/images/search",
       "GET"
     );
     const catPicture = cat[0].url;
-    setCat(catPicture)
+    setCat(catPicture);
   }
+
   async function bufferCatsPictures() {
     const cat = await fetchCat(
       "https://api.thecatapi.com/v1/images/search",
@@ -39,7 +41,6 @@ function App() {
     const catPicture = cat[0].url;
     setCatBuffer((oldCatPictures) => [...oldCatPictures, catPicture]);
 
-    //fetch cats till get to 20
     function bufferCatsCounter() {
       if (catCounter < 9) {
         setCatCounter(catCounter + 1);
@@ -47,7 +48,7 @@ function App() {
         return;
       }
     }
-    bufferCatsCounter()
+    bufferCatsCounter();
   }
 
   async function fetchCat(url, verb) {
@@ -61,19 +62,15 @@ function App() {
     return cat;
   }
 
-  function isCat(cat) {
-    return cat === undefined || null ? true : false;
-  }
-
+  
   function handleCatClick() {
    
-   if(catBuffer.length < 2){
-     return 
-   }else{
-    setCat(catBuffer.shift());
-    isBufferLength()
-   }
+      setCat(catBuffer.shift());
+      if(isBufferLength()){
+        setCatCounter(0)
+        return 
     
+    }
   }
 
   function DisplayBuffer() {
@@ -81,7 +78,20 @@ function App() {
       <div className="Loading">{`Your catBuffer has ${catBuffer.length} cats`}</div>
     );
   }
-
+  function Loading() {
+    return <img className="Cat-Loading" src={loading} />;
+  }
+  function Cat() {
+    if (isCat(cat)) {
+      return <img className="Cat-img" src={cat} />;
+    } else {
+      return <Loading />;
+    }
+    function isCat(cat) {
+      return cat !== null  || undefined ? true : false;
+    }
+  
+  }
   return (
     <div className="App">
       <header className="App-header">
@@ -89,7 +99,7 @@ function App() {
           CAT
         </button>
         <div className="Cat-container">
-          <img className="Cat-img" src={cat} alt="cat"/>
+          <Cat />
         </div>
         <DisplayBuffer />
       </header>
