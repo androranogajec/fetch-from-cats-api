@@ -8,22 +8,26 @@ function App() {
   const [catBuffer, setCatBuffer] = useState([]);
   const [catCounter, setCatCounter] = useState(0);
   console.log(catBuffer, "catBuffer");
-
+  console.log(catCounter);
   useEffect(() => {
     initCatPicture();
   }, []);
 
   useEffect(() => {
+    if (catCounter > 10) {
+      return;
+    }
     bufferCatsPictures();
   }, [catCounter]);
 
-  function isBufferLength() {
+  function isBufferLengthLessThenOne() {
     if (catBuffer.length < 1) {
-      return true
-    }else{
-      return false
+      return true;
+    } else {
+      return false;
     }
   }
+
   async function initCatPicture() {
     const cat = await fetchCat(
       "https://api.thecatapi.com/v1/images/search",
@@ -40,15 +44,15 @@ function App() {
     );
     const catPicture = cat[0].url;
     setCatBuffer((oldCatPictures) => [...oldCatPictures, catPicture]);
+    forceFetchCatTillBufferIsntEqualToTen();
 
-    function bufferCatsCounter() {
+    function forceFetchCatTillBufferIsntEqualToTen() {
       if (catCounter < 9) {
         setCatCounter(catCounter + 1);
       } else {
         return;
       }
     }
-    bufferCatsCounter();
   }
 
   async function fetchCat(url, verb) {
@@ -62,14 +66,22 @@ function App() {
     return cat;
   }
 
-  
+  function isBufferLengthZero() {
+    return catBuffer.length === 0 ? true : false;
+  }
+
+  function setCatFromBufferOrSetInitCat() {
+    setCat(catBuffer.shift());
+    if (isBufferLengthZero()) {
+      initCatPicture();
+    }
+  }
+
   function handleCatClick() {
-   
-      setCat(catBuffer.shift());
-      if(isBufferLength()){
-        setCatCounter(0)
-        return 
-    
+    setCatFromBufferOrSetInitCat();
+    if (isBufferLengthZero()) {
+      setCatCounter(0);
+      return;
     }
   }
 
@@ -78,9 +90,11 @@ function App() {
       <div className="Loading">{`Your catBuffer has ${catBuffer.length} cats`}</div>
     );
   }
+
   function Loading() {
     return <img className="Cat-Loading" src={loading} />;
   }
+
   function Cat() {
     if (isCat(cat)) {
       return <img className="Cat-img" src={cat} />;
@@ -88,9 +102,8 @@ function App() {
       return <Loading />;
     }
     function isCat(cat) {
-      return cat !== null  || undefined ? true : false;
+      return cat !== null || undefined ? true : false;
     }
-  
   }
   return (
     <div className="App">
