@@ -7,26 +7,14 @@ function App() {
   const [cat, setCat] = useState(null);
   const [catBuffer, setCatBuffer] = useState([]);
   const [catCounter, setCatCounter] = useState(0);
-  console.log(catBuffer, "catBuffer");
-  console.log(catCounter);
+  console.log("catBuffer", catBuffer, "catCounter", catCounter);
   useEffect(() => {
     initCatPicture();
   }, []);
 
   useEffect(() => {
-    if (catCounter > 10) {
-      return;
-    }
-    bufferCatsPictures();
+    bufferCatPictures();
   }, [catCounter]);
-
-  function isBufferLengthLessThenOne() {
-    if (catBuffer.length < 1) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
   async function initCatPicture() {
     const cat = await fetchCat(
@@ -37,22 +25,26 @@ function App() {
     setCat(catPicture);
   }
 
-  async function bufferCatsPictures() {
+  function bufferCatPicturesCounter() {
+    if (catCounter < 9) {
+      setCatCounter(catCounter + 1);
+    } else {
+      return;
+    }
+  }
+
+  function bufferCatSetter(catPicture) {
+    setCatBuffer((oldCatPictures) => [...oldCatPictures, catPicture]);
+  }
+
+  async function bufferCatPictures() {
     const cat = await fetchCat(
       "https://api.thecatapi.com/v1/images/search",
       "GET"
     );
     const catPicture = cat[0].url;
-    setCatBuffer((oldCatPictures) => [...oldCatPictures, catPicture]);
-    forceFetchCatTillBufferIsntEqualToTen();
-
-    function forceFetchCatTillBufferIsntEqualToTen() {
-      if (catCounter < 9) {
-        setCatCounter(catCounter + 1);
-      } else {
-        return;
-      }
-    }
+    bufferCatSetter(catPicture); 
+    bufferCatPicturesCounter();
   }
 
   async function fetchCat(url, verb) {
@@ -79,10 +71,11 @@ function App() {
 
   function handleCatClick() {
     setCatFromBufferOrSetInitCat();
-    if (isBufferLengthZero()) {
+    if (isBufferLengthZero() && catCounter === 9) {
       setCatCounter(0);
-      return;
+     
     }
+    
   }
 
   function DisplayBuffer() {
